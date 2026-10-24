@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New World LIFELINE - Emergency Triage</title>
+    <style>
+        :root {
+            --fk-blue: #2874f0;
+            --fk-yellow: #ffe500;
+            --bg-dark: #09090b;
+            --bg-panel: #18181b;
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --danger: #ef4444;
+            --danger-dim: rgba(239, 68, 68, 0.15);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --border: #27272a;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; }
+
+        body {
+            background-color: #000;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Mobile-first app container */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            max-height: 900px;
+            background-color: var(--bg-dark);
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        header {
+            background-color: var(--danger);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo { font-weight: 900; font-size: 20px; color: #fff; font-style: italic; letter-spacing: 1px; }
+        .badge { background: #000; color: var(--danger); font-size: 10px; font-weight: bold; padding: 4px 8px; border-radius: 4px; letter-spacing: 1px;}
+
+        .content { padding: 20px; }
+
+        /* Typography & Utility */
+        h1 { font-size: 22px; margin-bottom: 10px; }
+        h2 { font-size: 18px; margin-bottom: 15px; color: var(--fk-yellow); }
+        p { font-size: 14px; line-height: 1.5; color: var(--text-muted); margin-bottom: 15px; }
+        .hidden { display: none !important; }
+        .text-danger { color: var(--danger); }
+        
+        /* Alerts */
+        .alert {
+            background: var(--danger-dim); border-left: 4px solid var(--danger);
+            padding: 12px; border-radius: 6px; margin-bottom: 20px; font-size: 13px;
+        }
+        .alert-warning { background: rgba(245, 158, 11, 0.1); border-color: var(--warning); }
+
+        /* Forms & Buttons */
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
+        input[type="number"], input[type="text"] {
+            width: 100%; padding: 14px; background: var(--bg-panel);
+            border: 1px solid var(--border); color: #fff; border-radius: 8px; font-size: 16px;
+        }
+        input:focus { outline: none; border-color: var(--fk-yellow); }
+        
+        .btn {
+            display: block; width: 100%; padding: 16px; border: none; border-radius: 8px;
+            font-size: 16px; font-weight: bold; cursor: pointer; text-align: center;
+            transition: opacity 0.2s;
+        }
+        .btn:active { opacity: 0.8; }
+        .btn-primary { background: var(--fk-yellow); color: #000; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+
+        /* Product Cards */
+        .catalog { display: grid; gap: 15px; margin-bottom: 20px; }
+        .item-card {
+            background: var(--bg-panel); border: 1px solid var(--border);
+            padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .item-details h3 { font-size: 16px; margin: 0 0 5px 0; }
+        .item-details p { margin: 0; font-size: 12px; color: var(--text-muted); }
+        .item-actions { display: flex; align-items: center; gap: 10px; }
+        .add-btn { background: var(--border); color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+
+        /* Radar UI */
+        .radar-box {
+            background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px;
+            padding: 20px; text-align: center; margin-bottom: 20px; position: relative; overflow: hidden;
+        }
+        .radar-circle {
+            width: 120px; height: 120px; border-radius: 50%; border: 2px dashed var(--fk-yellow);
+            margin: 20px auto; position: relative; animation: pulse 2s infinite;
+            display: flex; justify-content: center; align-items: center;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 229, 0, 0.4); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(255, 229, 0, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 229, 0, 0); }
+        }
+
+        /* Nav Tabs */
+        .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .tab { flex: 1; text-align: center; padding: 12px; font-size: 14px; font-weight: bold; color: var(--text-muted); border-bottom: 2px solid transparent; cursor: pointer; }
+        .tab.active { color: var(--fk-yellow); border-bottom-color: var(--fk-yellow); }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- HEADER (Persistent in Lifeline Mode) -->
+        <header id="main-header" class="hidden">
+            <div class="logo">New World <span style="color: #000;">LIFELINE</span></div>
+            <div class="badge">TRIAGE MODE</div>
+        </header>
+
+        <!-- SCREEN 1: BOOT & CRISIS OVERRIDE -->
+        <div id="screen-boot" class="content" style="display: flex; flex-direction: column; justify-content: center; height: 100vh;">
+            <h1 style="color: var(--fk-blue); font-style: italic; font-size: 32px; text-align: center;">New World</h1>
+            <p style="text-align: center;"></p>
+            
+            <div id="crisis-intervention" class="hidden" style="margin-top: 40px;">
+                <div class="alert" style="background: var(--danger); color: #fff;">
+                    <strong>CRITICAL SYSTEM OVERRIDE</strong><br><br>
+                    Global population event detected. Standard commerce algorithms disabled. 
+                    <br><br>• All pending orders cancelled.<br>• Discretionary catalog locked.<br>• Banking gateways bypassed.
+                </div>
+                <button class="btn btn-primary" onclick="showScreen('screen-setup')">Enter Lifeline Protocol</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: HOUSEHOLD SETUP -->
+        <div id="screen-setup" class="content hidden">
+            <h2>Survivor Verification</h2>
+            <p>To prevent hoarding and calculate dynamic rations, please enter the headcount at your current location.</p>
+            
+            <div class="alert alert-warning">
+                <strong>Address Invalidation Active</strong><br>
+                Do not rely on saved addresses. We will use device GPS to designate your location as a "Survivor Drop-Zone".
+            </div>
+
+            <div class="input-group">
+                <label>Verified Survivors Present</label>
+                <input type="number" id="headcount" value="1" min="1" max="20">
+            </div>
+
+            <div class="input-group">
+                <label>Primary Identification (Aadhaar / Passport)</label>
+                <input type="text" placeholder="Required for State Ledger audit" id="nationalId">
+            </div>
+
+            <button class="btn btn-primary" onclick="initializeDashboard()">Pin SOS Drop-Zone & Proceed</button>
+        </div>
+
+        <!-- SCREEN 3: MAIN TRIAGE DASHBOARD -->
+        <div id="screen-dashboard" class="content hidden">
+            
+            <div class="tabs">
+                <div class="tab active" id="tab-supplies" onclick="switchTab('supplies')">Request Rations</div>
+                <div class="tab" id="tab-radar" onclick="switchTab('radar')">Ghost Fleet Radar</div>
+            </div>
+
+            <!-- Triage Catalog -->
+            <div id="view-supplies">
+                <div class="alert" style="border-color: var(--success); background: rgba(34, 197, 94, 0.1);">
+                    <strong>Allowance verified for <span id="display-headcount">1</span> person(s).</strong> Max quantities are mathematically locked to preserve network inventory.
+                </div>
+
+                <div class="catalog">
+                    <!-- Item 1 -->
+                    <div class="item-card">
+                        <div class="item-details">
+                            <h3>Hydration Kit (7 Days)</h3>
+                            <p>Water tablets & sealed pouches</p>
+                        </div>
+                        <div class="item-actions">
+                            <button class="add-btn" onclick="addToRequest('water')">Request</button>
+                        </div>
+                    </div>
+                    <!-- Item 2 -->
+                    <div class="item-card">
+                        <div class="item-details">
+                            <h3>Caloric Ration (MREs)</h3>
+                            <p>Non-perishable high-calorie blocks</p>
+                        </div>
+                        <div class="item-actions">
+                            <button class="add-btn" onclick="addToRequest('food')">Request</button>
+                        </div>
+                    </div>
+                    <!-- Item 3 -->
+                    <div class="item-card">
+                        <div class="item-details">
+                            <h3>Trauma & First Aid</h3>
+                            <p>Antiseptics, bandages, basic meds</p>
+                        </div>
+                        <div class="item-actions">
+                            <button class="add-btn" onclick="addToRequest('medical')">Request</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="checkout-btn" class="btn btn-outline" style="margin-top: 20px;" disabled onclick="showScreen('screen-checkout')">
+                    Select Items to Proceed (0)
+                </button>
+            </div>
+
+            <!-- Radar View -->
+            <div id="view-radar" class="hidden">
+                <p>Logistics API shows stalled last-mile delivery assets in your vicinity. Communities are authorized to access and distribute this inventory.</p>
+                
+                <div class="radar-box">
+                    <div class="radar-circle">
+                        <span style="font-size: 24px;">🚚</span>
+                    </div>
+                    <h3 style="color: var(--fk-yellow);">Stranded eKart Asset Detected</h3>
+                    <p style="font-size: 12px; margin-top: 5px;">Distance: 450 meters (Last ping: 12 hours ago)</p>
+                    <p style="font-size: 12px; color: var(--danger);">Driver Status: Unknown / Presumed Absent</p>
+                    
+                    <button class="btn btn-primary" style="margin-top: 15px;" onclick="unlockTruck()">Request Master Unlock Code</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 4: ZERO FRICTION CHECKOUT -->
+        <div id="screen-checkout" class="content hidden">
+            <h2>Emergency Dispatch</h2>
+            <p>Your survivor drop-zone coordinates have been locked. Re-routing nearest surviving logistics personnel.</p>
+            
+            <div class="alert" style="background: var(--bg-panel); border-color: var(--border);">
+                <h3 style="margin-bottom: 10px; font-size: 14px;">Deferred State Ledger</h3>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px;">
+                    <span style="color: var(--text-muted);">Hydration Kit</span>
+                    <span>₹0.00 (State Bill)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px;">
+                    <span style="color: var(--text-muted);">Caloric Ration</span>
+                    <span>₹0.00 (State Bill)</span>
+                </div>
+                <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
+                <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; color: var(--success);">
+                    <span>Consumer Cost Today:</span>
+                    <span>₹0.00</span>
+                </div>
+            </div>
+
+            <p style="font-size: 11px; text-align: center;">By confirming, you legally ensure under emergency national decree that these goods are for immediate survival and not black-market resale.</p>
+            
+            <button class="btn btn-primary" style="margin-top: 20px;" onclick="confirmDispatch()">I ensure. Confirm Dispatch.</button>
+        </div>
+
+        <!-- SCREEN 5: SUCCESS -->
+        <div id="screen-success" class="content hidden" style="text-align: center; margin-top: 50px;">
+            <div style="font-size: 60px; margin-bottom: 20px;">🚁</div>
+            <h2 style="color: var(--success);">Drop-Zone Verified</h2>
+            <p>Your request is logged on the decentralized ledger. A field operative will deliver to your exact GPS pin.</p>
+            <p style="color: var(--fk-yellow); font-weight: bold; margin-top: 20px;">Stay put. Stay safe.</p>
+        </div>
+
+    </div>
+
+    <script>
+        // Simulated Boot Sequence
+        setTimeout(() => {
+            document.getElementById('crisis-intervention').classList.remove('hidden');
+        }, 1500);
+
+        // State variables
+        let cartCount = 0;
+
+        function showScreen(screenId) {
+            // Hide all screens
+            document.querySelectorAll('.content').forEach(el => el.classList.add('hidden'));
+            // Show target
+            document.getElementById(screenId).classList.remove('hidden');
+            
+            // Show header if leaving boot screen
+            if(screenId !== 'screen-boot') {
+                document.getElementById('main-header').classList.remove('hidden');
+            }
+        }
+
+        function initializeDashboard() {
+            const headcount = document.getElementById('headcount').value;
+            const id = document.getElementById('nationalId').value;
+            
+            if(!id) {
+                alert("Please enter an ID to prevent hoarding abuses.");
+                return;
+            }
+
+            document.getElementById('display-headcount').innerText = headcount;
+            showScreen('screen-dashboard');
+        }
+
+        function switchTab(tab) {
+            document.getElementById('tab-supplies').classList.remove('active');
+            document.getElementById('tab-radar').classList.remove('active');
+            document.getElementById('view-supplies').classList.add('hidden');
+            document.getElementById('view-radar').classList.add('hidden');
+
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.getElementById(`view-${tab}`).classList.remove('active', 'hidden');
+        }
+
+        function addToRequest(itemType) {
+            // In a real app, this would track specific items. For prototype, we just increment count.
+            cartCount++;
+            const btn = document.getElementById('checkout-btn');
+            btn.innerText = `Submit ${cartCount} Essential(s) to Ledger`;
+            btn.classList.remove('btn-outline');
+            btn.classList.add('btn-primary');
+            btn.disabled = false;
+        }
+
+        function unlockTruck() {
+            alert("SECURE COMMAND SENT: The smart-lock on eKart Asset #KA-45-9923 has been overridden.\n\nProceed to the truck. Distribute contents fairly to the surviving community.");
+            switchTab('supplies'); // send them back to main screen
+        }
+
+        function confirmDispatch() {
+            // Simulating API network call
+            const btn = document.querySelector('#screen-checkout .btn-primary');
+            btn.innerText = "Writing to Secure Ledger...";
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                showScreen('screen-success');
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
